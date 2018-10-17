@@ -127,7 +127,7 @@ def make_reflex_borders(img, ksize):
 def gaussian_pyramid(src, sigma, n_levels):
 	ksize = getOptSKernelSigma(sigma)
 	res = copy.deepcopy(src)
-	gaussianPyramid = []
+	gaussianPyramid = [res]
 
 	for i in range(0, n_levels):
 		kernel = cv.getGaussianKernel(3, sigma)

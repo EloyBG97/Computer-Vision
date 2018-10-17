@@ -5,8 +5,8 @@ from matplotlib import pyplot as plt
 
 
 def main():
-	if len(sys.argv) != 4:
-		print 'Uso: ' + sys.argv[0] + ' <image_path> <sigma> <n_levels>\n'
+	if len(sys.argv) != 5:
+		print ('Uso: ' + sys.argv[0] + ' <image_path> <sigma> <n_levels> <write_bit>\n')
 		sys.exit(0)
 
 	img_per_row = 3
@@ -24,6 +24,8 @@ def main():
 	row = n_levels % img_per_row
 
 	for i in range(0,len(laplacianPyramid)):
+		if(sys.argv[4]=="1"):
+			cv.imwrite("Ejercicio2e"+str(i)+".bmp",laplacianPyramid[i])
 		plt.subplot(n_rows + n_rows,img_per_row,i + 1),plt.imshow(laplacianPyramid[i],cmap = 'gray')	
 		plt.title('Level ' + str(i)), plt.xticks([]), plt.yticks([])
 

@@ -5,18 +5,21 @@ from matplotlib import pyplot as plt
 def main():
 
 	if len(sys.argv) != 5:
-		print 'Uso: ' + sys.argv[0] + ' <image_path> <sigma> <border_type>\n'
+		print ('Uso: ' + sys.argv[0] + ' <image_path> <ksize> <sigma> <write_bit>\n')
 		sys.exit(0)
 
 	image_path = sys.argv[1]
 	ksize = int(sys.argv[2])
 	sigma = int(sys.argv[3])
-	border_type = int(sys.argv[4]) 
+	write_bit = int(sys.argv[4])
 
 	img = cv.imread(image_path, cv.IMREAD_COLOR)
 
-	img =  cv.GaussianBlur(img,(ksize,ksize),sigma)
-	img =  cv.Laplacian(img, 2, delta = 50)
+	img =  cv.GaussianBlur(img,(ksize,ksize),sigma, borderType =cv.BORDER_REFLECT)
+	img =  cv.Laplacian(img, 2, delta = 50, borderType =cv.BORDER_REFLECT)
+
+	if(write_bit == 1):
+		cv.imwrite('Ejercicio1c.bmp', img)
 
 	plt.subplot(1,1,1),plt.imshow(img,cmap = 'gray')
 	plt.title('Original'), plt.xticks([]), plt.yticks([])

@@ -19,12 +19,12 @@ def hibridar(img1, img2, sigma_low, sigma_high):
 
 def main():
 	if len(sys.argv) != 2:
-		print 'Uso: ' + sys.argv[0] + ' <numero_pareja>\n'
-		print "1. Submarine + Fish\n"
-		print "2. Einstein + Marylin\n"
-		print "3. Bird + Plane\n"
-		print "4. Cat + Dog\n"
-		print "5. Motorcycle + Bicycle\n"
+		print ('Uso: ' + sys.argv[0] + ' <numero_pareja>\n')
+		print ("1. Submarine + Fish\n")
+		print ("2. Einstein + Marylin\n")
+		print ("3. Bird + Plane\n")
+		print ("4. Cat + Dog\n")
+		print ("5. Motorcycle + Bicycle\n")
 		sys.exit(0)
 
 	sigma_low = 0
@@ -66,7 +66,7 @@ def main():
 
 	#cv.imshow('hibrida.bmp',hybrid)
 
-	cv.imwrite('imagenes/hybrid' + str(n_hybridation) + '.bmp', hybrid)
+	cv.imwrite('hybrid' + str(n_hybridation) + '.bmp', hybrid)
 
 
 	plt.subplot(1,1,1),plt.imshow(hybrid,cmap = 'gray')

@@ -3,7 +3,7 @@ import sys
 
 def main():
 	if len(sys.argv) != 5:
-		print 'Uso: ' + sys.argv[0] + '<ruta_imagen> <tamano_kernel> <sigma> <write_bit>\n'
+		print ('Uso: ' + sys.argv[0] + '<ruta_imagen> <tamano_kernel> <sigma> <write_bit>\n')
 		sys.exit(0)
 
 	ruta_imagen = sys.argv[1]
