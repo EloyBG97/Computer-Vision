@@ -17,7 +17,7 @@ def main():
 	img = cv.imread(image_path, cv.IMREAD_GRAYSCALE)
 	res = conv.apply_separable_mask(img, kernelX, kernelY, conv.REFLEX_BORDER)
 
-
+	res = res + 50
 	if(sys.argv[2] == "1"):
 		cv.imwrite("Ejercicio2a.bmp", res)
 	plt.subplot(1,1,1),plt.imshow(res,cmap = 'gray')

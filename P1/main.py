@@ -209,7 +209,7 @@ def gaussian_pyramid(src, sigma, n_levels):
 
 	
 
-	for i in range(0, n_levels):
+	for i in range(0, n_levels - 1):
 		kernel = cv.getGaussianKernel(3, sigma)
 		res = apply_separable_mask(res, kernel, kernel, cv.BORDER_REFLECT)
 		res = cv.pyrDown(res)
@@ -251,7 +251,13 @@ def hibridar(img1, img2, sigma_low, sigma_high):
 
 	hybrid = img_high_frequency + img_low_frequency
 
-	plt.subplot(1,1,1),plt.imshow(hybrid,cmap = 'gray')
+	plt.subplot(1,3,1),plt.imshow(img_low_frequency,cmap = 'gray')
+	plt.title('Baja'), plt.xticks([]), plt.yticks([])
+
+	plt.subplot(1,3,2),plt.imshow(img_high_frequency,cmap = 'gray')
+	plt.title('Alta'), plt.xticks([]), plt.yticks([])
+
+	plt.subplot(1,3,3),plt.imshow(hybrid,cmap = 'gray')
 	plt.title('Hibrida'), plt.xticks([]), plt.yticks([])
 	plt.show()
 	cv.waitKey(0)

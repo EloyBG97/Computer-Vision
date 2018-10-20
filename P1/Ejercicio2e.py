@@ -24,6 +24,8 @@ def main():
 	row = n_levels % img_per_row
 
 	for i in range(0,len(laplacianPyramid)):
+		laplacianPyramid[i] = laplacianPyramid[i] + 50
+
 		if(sys.argv[4]=="1"):
 			cv.imwrite("Ejercicio2e"+str(i)+".bmp",laplacianPyramid[i])
 		plt.subplot(n_rows + n_rows,img_per_row,i + 1),plt.imshow(laplacianPyramid[i],cmap = 'gray')	
