@@ -18,14 +18,17 @@ def ejercicio1a(src, ksize, sigma):
 	cv.destroyAllWindows()
 
 def ejercicio1b(ksize, dx, dy):
+	#Hallar mascaras de derivadas
 	kx, ky = cv.getDerivKernels(dx, dy, ksize)
 
 	print(kx)
 	print(ky)
 
 def ejercicio1c(src, ksize, sigma, type_border):
-
+	#Hacer desenfcado gaussiano para suavizar la imagen (eliminar ruido)
 	img =  cv.GaussianBlur(src,(ksize,ksize),sigma, borderType = type_border)
+
+	#Aplico una laplaciana para resaltar las aristas de la imagen
 	img =  cv.Laplacian(img, 2, delta = 50, borderType = type_border)
 
 	plt.subplot(1,1,1),plt.imshow(img,cmap = 'gray')
@@ -37,6 +40,7 @@ def ejercicio1c(src, ksize, sigma, type_border):
 #FUNCIONES EJERCICIO 2
 
 def ejercicio2a(src, kx, ky, border_type):
+	#Aplico a src las mascaras kx (sobre el eje X) y ky (sobre el eje Y)
 	res = apply_separable_mask(src, kx, ky, border_type)
 
 	plt.subplot(1,1,1),plt.imshow(res,cmap = 'gray')
@@ -44,8 +48,12 @@ def ejercicio2a(src, kx, ky, border_type):
 
 	plt.show()
 
+
 def ejercicio2bc(src, ksize, dx, dy, border_type):
+	#Hallo las mascaras de derivadas kx y ky
 	kx, ky = cv.getDerivKernels(dx, dy, ksize)
+
+	#Aplico las mascaras kx y ky
 	img = apply_separable_mask(src, kx, ky, border_type)
 
 	plt.subplot(1,1,1),plt.imshow(img,cmap = 'gray')
@@ -56,6 +64,8 @@ def ejercicio2bc(src, ksize, dx, dy, border_type):
 
 def ejercicio2d(src, sigma, n_levels):
 	img_per_row = 3
+
+	#Aplica sobre la imagen src una piramide gaussiana con sigma sigma de n_levels niveles
 	gaussianPyramid = gaussian_pyramid(src,sigma, n_levels)
 
 	n_rows = n_levels // img_per_row
@@ -71,7 +81,11 @@ def ejercicio2d(src, sigma, n_levels):
 
 def ejercicio2e(img, sigma, n_levels):
 	img_per_row = 3
+
+	#Aplica sobre img una piramide gaussiana de n_levels + 1. Esto es debido a que la piramide laplaciana tiene un nivel menos que la gaussiana
 	gaussianPyramid = gaussian_pyramid(img,sigma, n_levels + 1)
+
+	#A partir de la piramide gausiana obtenemos la piramide laplaciana de n_levels
 	laplacianPyramid = laplacian_pyramid(gaussianPyramid)
 
 	n_rows = n_levels // img_per_row
@@ -88,6 +102,7 @@ def ejercicio2e(img, sigma, n_levels):
 #FUNCIONES AUXILIARES
 #Devuelve el tamano de kernel optimo para un valor dado de sigma
 def getOptSKernelSigma(sigma):
+	#Tamano de kernel optimo segun la estadistica
 	size = (math.floor(6 * sigma + 1))
 	
 	if(size % 2 == 0):
@@ -99,10 +114,14 @@ def getOptSKernelSigma(sigma):
 def apply_kernel_x(img,kx):
 	dim_img = img.shape
 	dim_kernel = len(kx)
+
+	#Dimension del borde necesaria para que el tamano de la imagen no se vea alterada
 	kernel_border = (dim_kernel - 1) // 2
 	
+	#Inicializamos res a 0
 	res = np.zeros(dim_img)
-
+	
+	#Aplicamos la formula de convolucion teniendo en cuenta solo las columnas de la imagen
 	for i in range(0, dim_img[0]):
 		for j in range(kernel_border, dim_img[1] - kernel_border):
 			for v in range(-kernel_border, kernel_border+1):	
@@ -115,11 +134,14 @@ def apply_kernel_x(img,kx):
 def apply_kernel_y(img,ky):
 	dim_img = img.shape
 	dim_kernel = len(ky)
+
+        #Dimension del borde necesaria para que el tamano de la imagen no se vea alterada
 	kernel_border = (dim_kernel - 1) // 2
 
+        #Inicializamos res a 0
 	res = np.zeros(dim_img)
 
-	
+        #Aplicamos la formula de convolucion teniendo en cuenta solo las filas de la imagen
 	for i in range(kernel_border, dim_img[0] - kernel_border):
 		for j in range(0, dim_img[1]):
 			for u in range(-kernel_border, kernel_border+1):
@@ -156,63 +178,100 @@ def make_borders(img, ksize, type_border = cv.BORDER_DEFAULT):
 	return res
 
 
+
+#Anade bordes con valor 0 a la imagen
 def make_default_borders(img, ksize):
 	shape = img.shape
+
+	#Calculamos una columna de 0 con igual dimension a una columna de la imagen
 	newCol = np.zeros((shape[0], (ksize[0] - 1) // 2))
+
+	#Calculamos una fila de 0 de igual dimension a la imagen, teniendo en cuenta la columna anteriormente calculada
 	newRow = np.zeros(((ksize[0] - 1) // 2, shape[1] + newCol.shape[1]))
 
-
+	#Anadimos la columna a la imagen en la parte izda
 	res = np.column_stack((newCol,img))
+
+	#Anadimos la fila a la imagen en la parte superior
 	res = np.row_stack((newRow, res))
 
 	shape = res.shape
+
+	#Volvemos a calcular la columna con los cambios hechos
 	newCol = np.zeros((shape[0], (ksize[0] - 1) // 2))
+
+	#Volvemos a calcular la fila con los cambios hechos anteriormente y teniendo en cuenta la nueva columna
 	newRow = np.zeros(((ksize[0] - 1) // 2, shape[1] + newCol.shape[1]))
 
+	#Anadimos la columna a la imagen en la parte derecha
 	res = np.column_stack((res, newCol))
+
+	#Anadimos la fila a la imagen en la parte inferior
 	res = np.row_stack((res, newRow))
 
 	return res
 
+#Anade bordes en espejo
 def make_reflex_borders(img, ksize):
 	res = copy.deepcopy(img)
 
 	shape = res.shape
 
-
+	#Calculamos las columnas reflejadas por la parte izquierda
 	newCol = res[0:shape[0], 0:(ksize[1] - 1) // 2]
+
+	#Anadimos las columnas a la parte izquierda
 	res = np.column_stack((newCol[:,::-1], res))
 
 	shape = res.shape
-
+	
+	#Calculamos las columnas reflejadas por la parte derecha
 	newCol = res[0:shape[0], shape[1] - (ksize[1] - 1) // 2:shape[1]]
+
+	#Anadimos las columnas a la parte derecha
 	res = np.column_stack((res, newCol[:,::-1]))
 
 	shape = res.shape
 
+	#Teniendo en cuenta las columnas anadidas, calculamos las filas reflejaas por la parte superior 
 	newRow = res[0:(ksize[0] - 1) // 2,0:shape[1]]
+	
+	#Anadimos las filas a la parte superior
 	res = np.row_stack((newRow[::-1], res))
 
 	shape = res.shape
 
+	#Teniendo en cuenta las columnas anadidas, calculamos las filas reflejaas por la parte inferior
 	newRow = res[shape[0] - (ksize[0] - 1) // 2:shape[0],0:shape[1]]
-	res = np.row_stack((res, newRow[::-1]))
 
+	#Anadimos las filas a la parte inferior
+	res = np.row_stack((res, newRow[::-1]))
 
 	return res
 		
 #PIRAMIDE GAUSSIANA
 def gaussian_pyramid(src, sigma, n_levels):
+	#Tamano optimo del kernel en funcion del sigma
 	ksize = getOptSKernelSigma(sigma)
+
+	#Copamos src en res ya que los objetos mutables en python se pasan por referencia y operar con src directamente lo alteraria fuera del ambito de la funcion
 	res = copy.deepcopy(src)
+
+	#Guardamos la imagen original dentro de res (No cuenta como nivel de la piramide)
 	gaussianPyramid = [res]
 
-	
+	#Empezamos a rellenar la piramide
+	for i in range(0, n_levels):
+		#Sacamos un kernel gaussiano
+		kernel = cv.getGaussianKernel(ksize[0], sigma)
 
-	for i in range(0, n_levels - 1):
-		kernel = cv.getGaussianKernel(3, sigma)
+		#Aplicamos el kernel sobre la imagen resultante
 		res = apply_separable_mask(res, kernel, kernel, cv.BORDER_REFLECT)
+
+		#Eliminamos las filas pares de la imagen
 		res = cv.pyrDown(res)
+		
+		#Anadimos el resultado a la piramide
 		gaussianPyramid.append(res)
 	
 	return gaussianPyramid
@@ -221,18 +280,26 @@ def gaussian_pyramid(src, sigma, n_levels):
 def laplacian_pyramid(gaussianPyramid):
 	laplacianPyramid = []
 
+	#Empezamos a rellenar la piramide
 	for i in range(1, len(gaussianPyramid)):
+		#Anade filas intermedias e interpola en el nivel i de la piramide gaussiana
 		res = cv.pyrUp(gaussianPyramid[i])
 
+		#Tratamiento de columnas pares
 		if res.shape[0] != gaussianPyramid[i-1].shape[0]:
 			res = np.delete(res, res.shape[0]-1,0)
 
+		#Tratamiento de filas pares
 		if res.shape[1] != gaussianPyramid[i-1].shape[1]:
 			res = np.delete(res, res.shape[1]-1,1)
 
+		#Resta la imagen resultante con el nivel anterior de la gaussiana
 		res = gaussianPyramid[i-1] - res
+
+		#Anade a la piramide
 		laplacianPyramid.append(res)
 
+	#Invierte la piramide
 	laplacianPyramid.reverse()
 
 	return laplacianPyramid
@@ -241,14 +308,17 @@ def laplacian_pyramid(gaussianPyramid):
 
 #FUNCIONES AUXILIARES
 def hibridar(img1, img2, sigma_low, sigma_high): 
-	size =  int(math.floor(6*sigma_high + 1))
-	ksize = (size, size)
-	img_high_frequency = img1 - cv.GaussianBlur(img1,ksize,sigma_high)
+	size =  getOptSizeKernel(sigma_high)
+	
+	#Le quito a la imagen las frecuencias bajas
+	img_high_frequency = img1 - cv.GaussianBlur(img1,size[0],sigma_high)
 
-	size =  int(math.floor(6*sigma_low + 1))
-	ksize = (size, size)	
-	img_low_frequency = cv.GaussianBlur(img2,ksize,sigma_low)
+	size =  getOptSizeKernel(sigma_low)
 
+	#Le quito a la imagen las frecuencias altas
+	img_low_frequency = cv.GaussianBlur(img2,size[0],sigma_low)
+
+	#Sumo ambas imagenes para obtener la imagen hibrida
 	hybrid = img_high_frequency + img_low_frequency
 
 	plt.subplot(1,3,1),plt.imshow(img_low_frequency,cmap = 'gray')

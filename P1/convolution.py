@@ -130,7 +130,7 @@ def gaussian_pyramid(src, sigma, n_levels):
 	gaussianPyramid = [res]
 
 	for i in range(0, n_levels):
-		kernel = cv.getGaussianKernel(3, sigma)
+		kernel = cv.getGaussianKernel(ksize[0], sigma)
 		res = apply_separable_mask(res, kernel, kernel, REFLEX_BORDER)
 		res = cv.pyrDown(res)
 		gaussianPyramid.append(res)
